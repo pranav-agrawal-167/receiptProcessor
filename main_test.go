@@ -48,11 +48,10 @@ func ReceiptsforTesting() []Receipt {
 	return testReceipts[:]
 }
 
-func TestPostReceipt(t *testing.T) {
+func TestPostReceiptSuccess(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 	router.POST("/receipts/process", PostReceipt)
-
 	receiptData := map[string]interface{}{
 		"retailer":     "ABC",
 		"purchaseDate": "2022-01-01",
@@ -65,18 +64,13 @@ func TestPostReceipt(t *testing.T) {
 		},
 		"total": "35.35",
 	}
-
 	jsonData, _ := json.Marshal(receiptData)
-
 	req, err := http.NewRequest("POST", "/receipts/process", bytes.NewBuffer(jsonData))
 	if err != nil {
 		t.Fatalf("Couldn't create request: %v\n", err)
 	}
-
 	recorder := httptest.NewRecorder()
-
 	router.ServeHTTP(recorder, req)
-
 	assert.Equal(t, http.StatusOK, recorder.Code)
 	var actualResponse map[string]string
 	error := json.Unmarshal(recorder.Body.Bytes(), &actualResponse)
@@ -91,6 +85,37 @@ func TestPostReceipt(t *testing.T) {
 	if uuidError != nil {
 		t.Error("Generated response is not a valid UUID: ", uuidError)
 	}
+}
+
+func TestPostReceiptFailure(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	router := gin.Default()
+	router.POST("/receipts/process", PostReceipt)
+	receiptData := map[string]interface{}{
+		"retailer":     "ABC",
+		"purchaseDate": "2022-01-0",
+		"purchaseTime": "17:52",
+		"items": []map[string]interface{}{
+			{
+				"shortDescription": "Testing data",
+				"price":            "11.11",
+			},
+		},
+		"total": "35.35s",
+	}
+	jsonData, _ := json.Marshal(receiptData)
+
+	req, err := http.NewRequest("POST", "/receipts/process", bytes.NewBuffer(jsonData))
+	if err != nil {
+		t.Fatalf("Couldn't create request: %v\n", err)
+	}
+
+	recorder := httptest.NewRecorder()
+
+	router.ServeHTTP(recorder, req)
+
+	assert.Equal(t, http.StatusBadRequest, recorder.Code)
+
 }
 
 func TestGetPoints_withValidId(t *testing.T) {
