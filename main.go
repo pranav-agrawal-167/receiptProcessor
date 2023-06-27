@@ -29,6 +29,7 @@ type Receipt struct {
 	Total        float64             `json:"total,string"`
 }
 
+// map to store receiptID and receipt as a key value pair
 var receiptMap = make(map[string]Receipt)
 
 func main() {
@@ -43,15 +44,15 @@ func main() {
 
 func PostReceipt(c *gin.Context) {
 	var receipt Receipt
-
+	// process JSON payload to store as a Receipt struct
 	if err := c.BindJSON(&receipt); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
+	// generate UUID
 	receiptId := uuid.New().String()
-	receiptMap[receiptId] = receipt
 
+	receiptMap[receiptId] = receipt
 	c.JSON(http.StatusOK, gin.H{"id": receiptId})
 }
 
@@ -159,6 +160,7 @@ func AddPurchaseTimePoints(receipt *Receipt) int {
 	return 0
 }
 
+// Unmarshal JSON to store the PurchaseDate and PurchaseTime in the required format
 func (purchaseDate *ReceiptPurchaseDate) UnmarshalJSON(b []byte) error {
 	trimmedDateString := strings.Trim(string(b), "\"")
 	formattedDate, err := time.Parse("2006-01-02", trimmedDateString)
