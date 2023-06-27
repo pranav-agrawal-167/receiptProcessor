@@ -1,5 +1,3 @@
-# receiptProcessor
-
 ## Overview
 A webservice that processes receipts to calculate points based on the rules provided. The APIs are documented below. The webservice has 2 APIs(POST and GET) to store a receipt and calculate the points.
 
@@ -39,6 +37,45 @@ If the trimmed length of the item description is a multiple of 3, multiply the p
 6 points if the day in the purchase date is odd.
 10 points if the time of purchase is after 2:00pm and before 4:00pm.
 
+## Example
+```json
+{
+  "retailer": "Target",
+  "purchaseDate": "2022-01-01",
+  "purchaseTime": "13:01",
+  "items": [
+    {
+      "shortDescription": "Mountain Dew 12PK",
+      "price": "6.49"
+    },{
+      "shortDescription": "Emils Cheese Pizza",
+      "price": "12.25"
+    },{
+      "shortDescription": "Knorr Creamy Chicken",
+      "price": "1.26"
+    },{
+      "shortDescription": "Doritos Nacho Cheese",
+      "price": "3.35"
+    },{
+      "shortDescription": "   Klarbrunn 12-PK 12 FL OZ  ",
+      "price": "12.00"
+    }
+  ],
+  "total": "35.35"
+}
+```
+Total Points: 28
+Breakdown:
+     6 points - retailer name has 6 characters
+    10 points - 4 items (2 pairs @ 5 points each)
+     3 Points - "Emils Cheese Pizza" is 18 characters (a multiple of 3)
+                item price of 12.25 * 0.2 = 2.45, rounded up is 3 points
+     3 Points - "Klarbrunn 12-PK 12 FL OZ" is 24 characters (a multiple of 3)
+                item price of 12.00 * 0.2 = 2.4, rounded up is 3 points
+     6 points - purchase day is odd
+  + ---------
+  = 28 points
+
 ## Running the program
 The application requires Go to be installed.
 
@@ -51,3 +88,6 @@ In order to run the unit tests run the following commands
  - cd /receiptProcessor
  - go get .
  - go test
+
+Once the application is running, you can make a POST request(http://domain:8080/receipts/process) and you must get a UUID for the receipt payload.
+Using that UUID, make a GET request(http://domain:8080/receipts/{id}/points) to get the points for the receipt.
