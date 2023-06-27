@@ -76,7 +76,7 @@ Total Points: 28
   + ---------
   = 28 points
 
-## Running the program
+## Running the program locally
 The application requires Go to be installed.
 
 Run the following commands to start the application
@@ -89,5 +89,5 @@ In order to run the unit tests run the following commands
  - go get .
  - go test
 
-Once the application is running, you can make a POST request(http://domain:8080/receipts/process) and you must get a UUID for the receipt payload.
-Using that UUID, make a GET request(http://domain:8080/receipts/{id}/points) to get the points for the receipt.
+Once the application is running, you can make a POST request(http://localhost:8080/receipts/process) and you must get a UUID for the receipt payload.
+Using that UUID, make a GET request(http://localhost:8080/receipts/{id}/points) to get the points for the receipt.
